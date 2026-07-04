@@ -16,3 +16,4 @@
 ## 参考
 
 * 画面レイアウト : スポーツタイマー画面レイアウト.drawio
+  * ただし仕様変更を伴う場合 .claude/knowledge/architecture.md の仕様を正とする

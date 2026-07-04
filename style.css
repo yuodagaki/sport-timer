@@ -1,5 +1,26 @@
 /* Tailwindのユーティリティで表現できない最小限のスタイルのみ記述 */
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  /* モバイルのアドレスバー等で変動する実際の表示領域に追従させる */
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+#time-display {
+  /* 実際のフォントサイズは script.js が実測してウィンドウに合わせて設定する */
+  white-space: nowrap;
+  line-height: 1;
+}
+
 :focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;

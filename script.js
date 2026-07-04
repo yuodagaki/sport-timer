@@ -1,16 +1,31 @@
 (() => {
+  const appBody = document.getElementById('app-body');
   const timeDisplay = document.getElementById('time-display');
-  const toggleBtn = document.getElementById('toggle-btn');
 
   const MAX_SECONDS = 99 * 3600 + 59 * 60 + 59; // 99:59:59
   const TICK_INTERVAL_MS = 200;
 
-  const RUNNING_BUTTON_CLASSES = ['bg-rose-500', 'hover:bg-rose-600', 'active:bg-rose-700'];
-  const STOPPED_BUTTON_CLASSES = ['bg-emerald-500', 'hover:bg-emerald-600', 'active:bg-emerald-700'];
+  const RUNNING_BG_CLASS = 'bg-rose-500';
+  const STOPPED_BG_CLASS = 'bg-emerald-500';
+
+  const REFERENCE_FONT_SIZE_PX = 100;
+  const WIDTH_MARGIN_RATIO = 0.92;
+  const HEIGHT_MARGIN_RATIO = 0.85;
 
   let state = 'STOPPED'; // 'STOPPED' | 'RUNNING'
   let startTimestamp = null;
   let intervalId = null;
+
+  function fitTimeDisplayToWindow() {
+    timeDisplay.style.fontSize = `${REFERENCE_FONT_SIZE_PX}px`;
+    const { width, height } = timeDisplay.getBoundingClientRect();
+    const maxWidth = window.innerWidth * WIDTH_MARGIN_RATIO;
+    const maxHeight = window.innerHeight * HEIGHT_MARGIN_RATIO;
+    const scale = Math.min(maxWidth / width, maxHeight / height);
+    timeDisplay.style.fontSize = `${REFERENCE_FONT_SIZE_PX * scale}px`;
+  }
+
+  window.addEventListener('resize', fitTimeDisplayToWindow);
 
   function formatTime(totalSeconds) {
     const pad = (n) => String(n).padStart(2, '0');
@@ -24,10 +39,9 @@
     timeDisplay.textContent = formatTime(totalSeconds);
   }
 
-  function setButtonRunning(isRunning) {
-    toggleBtn.textContent = isRunning ? 'STOP' : 'START';
-    toggleBtn.classList.remove(...(isRunning ? STOPPED_BUTTON_CLASSES : RUNNING_BUTTON_CLASSES));
-    toggleBtn.classList.add(...(isRunning ? RUNNING_BUTTON_CLASSES : STOPPED_BUTTON_CLASSES));
+  function setBackgroundRunning(isRunning) {
+    appBody.classList.remove(isRunning ? STOPPED_BG_CLASS : RUNNING_BG_CLASS);
+    appBody.classList.add(isRunning ? RUNNING_BG_CLASS : STOPPED_BG_CLASS);
   }
 
   function elapsedSeconds() {
@@ -46,7 +60,7 @@
     state = 'RUNNING';
     startTimestamp = Date.now();
     updateDisplay(0);
-    setButtonRunning(true);
+    setBackgroundRunning(true);
     intervalId = setInterval(tick, TICK_INTERVAL_MS);
   }
 
@@ -55,10 +69,10 @@
     intervalId = null;
     state = 'STOPPED';
     updateDisplay(elapsedSeconds());
-    setButtonRunning(false);
+    setBackgroundRunning(false);
   }
 
-  toggleBtn.addEventListener('click', () => {
+  appBody.addEventListener('click', () => {
     if (state === 'STOPPED') {
       startTimer();
     } else {
@@ -67,5 +81,6 @@
   });
 
   updateDisplay(0);
-  setButtonRunning(false);
+  setBackgroundRunning(false);
+  fitTimeDisplayToWindow();
 })();
