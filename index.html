@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スポーツタイマー</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-xl bg-white border border-gray-300 rounded-lg shadow-sm flex flex-col items-center justify-center gap-8 py-10 px-6 sm:py-14 sm:px-10">
+    <div
+      id="time-display"
+      class="tabular-nums select-none text-center text-gray-800 font-bold text-5xl sm:text-7xl md:text-8xl"
+    >00:00:00</div>
+    <button
+      id="toggle-btn"
+      type="button"
+      class="rounded-full px-10 py-4 text-lg font-semibold text-white bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 transition-colors"
+    >START</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
