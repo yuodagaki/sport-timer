@@ -4,6 +4,9 @@
   const timeDisplay = document.getElementById('time-display');
   const historyContainer = document.getElementById('history-container');
   const historyList = document.getElementById('history-list');
+  const soundToggleBtn = document.getElementById('sound-toggle-btn');
+  const iconSoundOn = document.getElementById('icon-sound-on');
+  const iconSoundOff = document.getElementById('icon-sound-off');
 
   const MAX_SECONDS = 99 * 3600 + 59 * 60 + 59; // 99:59:59
   const TICK_INTERVAL_MS = 200;
@@ -22,6 +25,43 @@
   let startTimestamp = null;
   let intervalId = null;
   let records = loadRecords();
+  let soundEnabled = true;
+  let lastBeepedSecond = 0;
+  let audioContext = null;
+
+  function getAudioContext() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    return audioContext;
+  }
+
+  function playBeep() {
+    if (!soundEnabled) {
+      return;
+    }
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    oscillator.type = 'square';
+    oscillator.frequency.value = 880;
+    gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.1);
+  }
+
+  function updateSoundIcon() {
+    iconSoundOn.classList.toggle('hidden', !soundEnabled);
+    iconSoundOff.classList.toggle('hidden', soundEnabled);
+    soundToggleBtn.setAttribute('aria-pressed', String(soundEnabled));
+    soundToggleBtn.setAttribute('aria-label', soundEnabled ? '音を消す' : '音を出す');
+  }
 
   function fitTimeDisplayToWindow() {
     timeDisplay.style.fontSize = `${REFERENCE_FONT_SIZE_PX}px`;
@@ -104,6 +144,10 @@
   function tick() {
     const seconds = elapsedSeconds();
     updateDisplay(seconds);
+    if (seconds > lastBeepedSecond) {
+      lastBeepedSecond = seconds;
+      playBeep();
+    }
     if (seconds >= MAX_SECONDS) {
       stopTimer();
     }
@@ -112,6 +156,7 @@
   function startTimer() {
     state = 'RUNNING';
     startTimestamp = Date.now();
+    lastBeepedSecond = 0;
     updateDisplay(0);
     setBackgroundRunning(true);
     intervalId = setInterval(tick, TICK_INTERVAL_MS);
@@ -128,7 +173,7 @@
   }
 
   appBody.addEventListener('click', (event) => {
-    if (event.target.closest('#history-container')) {
+    if (event.target.closest('#history-container') || event.target.closest('#sound-toggle-btn')) {
       return;
     }
     if (state === 'STOPPED') {
@@ -138,7 +183,16 @@
     }
   });
 
+  soundToggleBtn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    updateSoundIcon();
+    if (soundEnabled) {
+      getAudioContext();
+    }
+  });
+
   updateDisplay(0);
   setBackgroundRunning(false);
+  updateSoundIcon();
   renderRecords();
 })();
