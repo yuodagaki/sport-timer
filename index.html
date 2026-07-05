@@ -9,9 +9,14 @@
 </head>
 <body
   id="app-body"
-  class="flex items-center justify-center select-none cursor-pointer transition-colors duration-150 bg-emerald-500"
+  class="flex flex-col select-none cursor-pointer transition-colors duration-150 bg-emerald-500"
 >
-  <div id="time-display" class="tabular-nums font-bold text-white text-center">00:00:00</div>
+  <div id="time-container" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+    <div id="time-display" class="tabular-nums font-bold text-white whitespace-nowrap">00:00:00</div>
+  </div>
+  <div id="history-container" class="flex-none w-full max-h-[35vh] overflow-y-auto bg-black/20">
+    <ol id="history-list" class="text-white text-sm sm:text-base font-mono list-none m-0 p-3 space-y-1"></ol>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
