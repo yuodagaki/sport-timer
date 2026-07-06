@@ -57,6 +57,31 @@
     oscillator.stop(ctx.currentTime + 0.1);
   }
 
+  function playLongBeep() {
+    if (!soundEnabled) {
+      return;
+    }
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 1320;
+    gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.35);
+  }
+
+  function playTickSound(seconds) {
+    if (seconds % 10 === 0) {
+      playLongBeep();
+    } else {
+      playBeep();
+    }
+  }
+
   function updateSoundIcon() {
     iconSoundOn.classList.toggle('hidden', !soundEnabled);
     iconSoundOff.classList.toggle('hidden', soundEnabled);
@@ -154,7 +179,7 @@
     updateDisplay(seconds);
     if (seconds > lastBeepedSecond) {
       lastBeepedSecond = seconds;
-      playBeep();
+      playTickSound(seconds);
     }
     if (seconds >= MAX_SECONDS) {
       stopTimer();
