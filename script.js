@@ -7,6 +7,7 @@
   const soundToggleBtn = document.getElementById('sound-toggle-btn');
   const iconSoundOn = document.getElementById('icon-sound-on');
   const iconSoundOff = document.getElementById('icon-sound-off');
+  const clearHistoryBtn = document.getElementById('clear-history-btn');
 
   const MAX_SECONDS = 99 * 3600 + 59 * 60 + 59; // 99:59:59
   const TICK_INTERVAL_MS = 200;
@@ -118,6 +119,12 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }
 
+  function updateClearButtonVisibility() {
+    const hasRecords = records.length > 0;
+    clearHistoryBtn.classList.toggle('hidden', !hasRecords);
+    clearHistoryBtn.classList.toggle('flex', hasRecords);
+  }
+
   function renderRecords() {
     historyList.innerHTML = '';
     for (const record of records) {
@@ -125,6 +132,7 @@
       li.textContent = `${formatTime(record.seconds)} (${formatDateTime(record.recordedAt)})`;
       historyList.appendChild(li);
     }
+    updateClearButtonVisibility();
     fitTimeDisplayToWindow();
   }
 
@@ -173,7 +181,11 @@
   }
 
   appBody.addEventListener('click', (event) => {
-    if (event.target.closest('#history-container') || event.target.closest('#sound-toggle-btn')) {
+    if (
+      event.target.closest('#history-container') ||
+      event.target.closest('#sound-toggle-btn') ||
+      event.target.closest('#clear-history-btn')
+    ) {
       return;
     }
     if (state === 'STOPPED') {
@@ -189,6 +201,12 @@
     if (soundEnabled) {
       getAudioContext();
     }
+  });
+
+  clearHistoryBtn.addEventListener('click', () => {
+    records = [];
+    saveRecords();
+    renderRecords();
   });
 
   updateDisplay(0);
